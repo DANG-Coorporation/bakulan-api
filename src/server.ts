@@ -4,8 +4,10 @@ import express from "express";
 import helmet from "helmet";
 import cors from "cors";
 import MainRouter from "./routes";
-import UsersRouter from "./routes/users";
 import rateLimit from "express-rate-limit";
+import AuthRouter from "./routes/auth";
+import UserRouter from "./routes/user";
+import AuthMiddleware from "./middleware/auth.middleware";
 
 export default class Server {
   expressInstance: express.Express;
@@ -25,25 +27,27 @@ export default class Server {
     this.expressInstance.use(
       "/api",
       rateLimit({
-        windowMs: 11 * 60 * 1000,
+        windowMs: 1 * 1000,
         max: 10,
       })
     );
     // Setup requests format parsing (BodyParser should come before other routes)
     this.expressInstance.use(bodyParser.urlencoded({ extended: true }));
     this.expressInstance.use(bodyParser.json());
-
+    this.expressInstance.use("/", new AuthMiddleware().checkAuth);
     // Setup requests gZip compression (Should be the last middleware)
     this.expressInstance.use(compression());
   }
 
   private routesSetup() {
     // Instantiate mainRouter object
-    let router = new MainRouter().router;
-    let userRouter = new UsersRouter().router;
+    const router = new MainRouter().router;
+    const authRouter = new AuthRouter().router;
+    const userRouter = new UserRouter().router;
 
     // Add to server routes
     this.expressInstance.use("/", router);
-    this.expressInstance.use("/api/auth", userRouter);
+    this.expressInstance.use("/api/auth", authRouter);
+    this.expressInstance.use("/api/user", userRouter);
   }
 }
