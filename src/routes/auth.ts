@@ -7,7 +7,7 @@ import {
   refreshTokenValidator,
 } from "../helper/validator/users.validator";
 
-export default class UsersRouter {
+export default class AuthRouter {
   router: Router;
   userController: UserController;
 

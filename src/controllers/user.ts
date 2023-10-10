@@ -3,9 +3,13 @@ import { HttpStatusCode } from "axios";
 import { Request, Response } from "express";
 import message from "../config/message";
 import { ProcessError } from "../helper/Error/errorHandler";
-import { IAdmin } from "../helper/interface/user/create.admin.interface";
+import {
+  IAdmin,
+  ICreateCashier,
+} from "../helper/interface/user/create.admin.interface";
 import UserService from "../service/user.service";
-import { ILoginRequest } from "../helper/interface/auth/login";
+import { ILoginRequest, IUser } from "../helper/interface/auth/login";
+import { ForbiddenException } from "../helper/Error/Forbidden/ForbiddenException";
 
 export class UserController {
   userServices: UserService;
@@ -18,6 +22,38 @@ export class UserController {
     try {
       const body = req.body as IAdmin;
       const result = await this.userServices.createAdmin(body);
+      res.status(HttpStatusCode.Ok).json({
+        statusCode: HttpStatusCode.Ok,
+        message: message.success,
+        data: result,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
+
+  async createCashier(req: Request, res: Response) {
+    try {
+      const body = req.body as ICreateCashier;
+      const user = req.user;
+      if (!user.isAdmin) throw new ForbiddenException("You are not admin", {});
+      const result = await this.userServices.createCashier(body, user.id);
+      res.status(HttpStatusCode.Ok).json({
+        statusCode: HttpStatusCode.Ok,
+        message: message.success,
+        data: result,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
+
+  async addMerchant(req: Request, res: Response) {
+    try {
+      const body = req.body;
+      const user = req.user;
+      if (!user.isAdmin) throw new ForbiddenException("You are not admin", {});
+      const result = await this.userServices.addMerchant(body.name, user.id);
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: message.success,

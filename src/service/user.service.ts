@@ -4,7 +4,10 @@ import { NotFoundException } from "../helper/Error/NotFound/NotFoundException";
 import { removeLimitAndPage } from "../helper/function/filteredData";
 import { IPaginate } from "../helper/interface/paginate/paginate.interface";
 import Users, { UserCreationAttributes } from "../database/models/user";
-import { IAdmin } from "../helper/interface/user/create.admin.interface";
+import {
+  IAdmin,
+  ICreateCashier,
+} from "../helper/interface/user/create.admin.interface";
 import bcrypt from "bcrypt";
 import {
   ILoginRequest,
@@ -12,6 +15,7 @@ import {
   IUser,
 } from "../helper/interface/auth/login";
 import JwtService from "./jwt.service";
+import Merchants from "../database/models/merchant";
 
 export default class UserService {
   jwtSrvice: JwtService;
@@ -49,6 +53,50 @@ export default class UserService {
         ...payload,
       });
       return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async createCashier(input: ICreateCashier, ownerId: number): Promise<Users> {
+    try {
+      const owner = await this.getById(ownerId);
+      if (!owner.merchantId)
+        throw new BadRequestException("Please add merchant first", {});
+      const isExistUsername = await this.gets({ username: input.username });
+      if (isExistUsername.length > 0)
+        throw new BadRequestException("Username is exist", {});
+
+      const isExistEmail = await this.gets({ email: input.email });
+      if (isExistEmail.length > 0)
+        throw new BadRequestException("Email is exist", {});
+
+      const password = await bcrypt.hash(input.password, 10);
+      const payload = {
+        ...input,
+        password,
+        isAdmin: false,
+      };
+      const user = await this.create({
+        ...payload,
+      });
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async addMerchant(name: string, ownerId: number) {
+    try {
+      await this.getById(ownerId);
+      const merchant = await Merchants.create({
+        name,
+      });
+
+      await this.updateById(ownerId, {
+        merchantId: merchant.id,
+      });
+      return merchant;
     } catch (error) {
       throw error;
     }
