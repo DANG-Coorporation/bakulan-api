@@ -26,6 +26,7 @@ export default class Server {
   }
 
   private middlewareSetup() {
+    const authMiddleware = new AuthMiddleware().checkAuth;
     // Setup common security protection (Helmet should come first)
     this.expressInstance.use(helmet());
 
@@ -41,7 +42,7 @@ export default class Server {
     // Setup requests format parsing (BodyParser should come before other routes)
     this.expressInstance.use(bodyParser.urlencoded({ extended: true }));
     this.expressInstance.use(bodyParser.json());
-    this.expressInstance.use("/", new AuthMiddleware().checkAuth);
+    this.expressInstance.use("/", authMiddleware);
     // Setup requests gZip compression (Should be the last middleware)
     this.expressInstance.use(compression());
   }
@@ -59,12 +60,22 @@ export default class Server {
   }
 
   private printRegisteredRoutes() {
-    const routes = expressListEndpoints(this.expressInstance);
     console.log(`\n`);
-    routes.forEach((route) => {
+
+    function printLog(method: string, path: string) {
       console.log(
-        `${FgYellow}Registered route: ${FgGreen}${route.path}` + Reset
+        `${FgYellow}Registered route: ${FgGreen}${method} ${path}` + Reset
       );
+    }
+    const routes = expressListEndpoints(this.expressInstance);
+    routes.forEach((route: any) => {
+      if (route.methods.length > 1) {
+        route.methods.forEach((method: string) => {
+          printLog(method, route.path);
+        });
+      } else {
+        printLog(route.methods[0], route.path);
+      }
     });
   }
 }
