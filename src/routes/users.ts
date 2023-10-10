@@ -4,6 +4,7 @@ import { body } from "express-validator";
 import {
   createOwnerValidator,
   loginValidator,
+  refreshTokenValidator,
 } from "../helper/validator/users.validator";
 
 export default class UsersRouter {
@@ -35,6 +36,13 @@ export default class UsersRouter {
 
     this.router.post("/", loginValidator(), (req: Request, res: Response) =>
       this.userController.login(req, res)
+    );
+
+    this.router.post(
+      "/refresh-token",
+      refreshTokenValidator(),
+      (req: Request, res: Response) =>
+        this.userController.refreshToken(req, res)
     );
   }
 }

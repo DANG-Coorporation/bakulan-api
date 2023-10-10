@@ -41,4 +41,18 @@ export class UserController {
       ProcessError(error, res);
     }
   }
+
+  async refreshToken(req: Request, res: Response) {
+    try {
+      const { refreshToken } = req.body;
+      const result = await this.userServices.getRefreshToken(refreshToken);
+      res.status(HttpStatusCode.Ok).json({
+        statusCode: HttpStatusCode.Ok,
+        message: message.success,
+        data: result,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
 }

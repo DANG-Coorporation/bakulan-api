@@ -28,4 +28,16 @@ export default class JwtService {
       throw new ForbiddenException("Invalid token", {});
     }
   }
+
+  async verifyRefreshToken(token: string) {
+    try {
+      return jwt.verify(
+        token,
+        configConstants.JWT_SECRET_REFRESH_TOKEN
+      ) as refreshTokenPayload;
+    } catch (error) {
+      console.log("JwtService:verifyRefreshToken:error");
+      throw new ForbiddenException("Invalid token", {});
+    }
+  }
 }

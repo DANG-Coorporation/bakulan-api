@@ -81,6 +81,34 @@ export default class UserService {
     }
   }
 
+  async getRefreshToken(input: string): Promise<ILoginResponse> {
+    try {
+      const payload = await this.jwtSrvice.verifyRefreshToken(input);
+      const user = await this.findOne({ id: payload.id });
+      if (!user) throw new NotFoundException("Credential is invalid", {});
+
+      const newPayload: IUser = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        isAdmin: user.isAdmin,
+      };
+
+      const accessToken = await this.jwtSrvice.generateToken(newPayload);
+      const refreshToken = await this.jwtSrvice.generateRefreshToken(
+        newPayload
+      );
+
+      return {
+        accessToken,
+        refreshToken,
+        user: newPayload,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async gets(conditions: Partial<UserCreationAttributes>) {
     try {
       const users = await Users.findAll({ where: conditions });
