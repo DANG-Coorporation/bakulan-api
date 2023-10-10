@@ -7,11 +7,12 @@ const databaseInstance = Database.database;
 // User Interface
 export interface UserAttributes {
   id: number;
-  name: string;
+  username: string;
   email: string;
-  uniqueId: string;
   password: string;
-  googleUid?: string;
+  isAdmin: boolean;
+  merchantId?: number;
+  pictureId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -25,11 +26,14 @@ class Users
   implements UserAttributes
 {
   public id!: number;
-  public name!: string;
+  public username!: string;
   public email!: string;
   public password!: string;
-  public uniqueId!: string;
-  public googleUid!: string;
+  public isAdmin!: boolean;
+  public merchantId!: number;
+  public pictureId!: string;
+
+  // timestamps!
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -38,33 +42,26 @@ Users.init(
   {
     id: {
       type: DataTypes.INTEGER,
-      autoIncrement: true,
       primaryKey: true,
+      autoIncrement: true,
     },
-    name: {
-      type: new DataTypes.STRING(255),
-      allowNull: false,
+    username: DataTypes.STRING(255),
+    password: DataTypes.STRING(255),
+    email: DataTypes.STRING(255),
+    isAdmin: DataTypes.BOOLEAN,
+    merchantId: DataTypes.INTEGER,
+    pictureId: DataTypes.STRING(255),
+    createdAt: {
+      type: DataTypes.DATE,
     },
-    email: {
-      type: new DataTypes.STRING(255),
-      allowNull: false,
-    },
-    password: {
-      type: new DataTypes.STRING(255),
-      allowNull: true,
-    },
-    uniqueId: {
-      type: new DataTypes.STRING(255),
-      allowNull: false,
-    },
-    googleUid: {
-      type: new DataTypes.STRING(255),
-      allowNull: true,
+    updatedAt: {
+      type: DataTypes.DATE,
     },
   },
   {
     tableName: "users",
     sequelize: databaseInstance,
+    underscored: true,
   }
 );
 

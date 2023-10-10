@@ -4,14 +4,80 @@ import { NotFoundException } from "../helper/Error/NotFound/NotFoundException";
 import { removeLimitAndPage } from "../helper/function/filteredData";
 import { IPaginate } from "../helper/interface/paginate/paginate.interface";
 import Users, { UserCreationAttributes } from "../database/models/user";
+import { IAdmin } from "../helper/interface/user/create.admin.interface";
+import bcrypt from "bcrypt";
+import {
+  ILoginRequest,
+  ILoginResponse,
+  IUser,
+} from "../helper/interface/auth/login";
+import JwtService from "./jwt.service";
 
 export default class UserService {
+  jwtSrvice: JwtService;
+
+  constructor() {
+    this.jwtSrvice = new JwtService();
+  }
+
   async create(input: UserCreationAttributes) {
     try {
       const user = await Users.create(input);
       return user;
     } catch (error: any) {
       throw new Error(`Error creating user: ${error.message}`);
+    }
+  }
+
+  async createAdmin(input: IAdmin): Promise<Users> {
+    try {
+      const isExistUsername = await this.gets({ username: input.username });
+      if (isExistUsername.length > 0)
+        throw new BadRequestException("Username is exist", {});
+
+      const isExistEmail = await this.gets({ email: input.email });
+      if (isExistEmail.length > 0)
+        throw new BadRequestException("Email is exist", {});
+
+      const password = await bcrypt.hash(input.password, 10);
+      const payload = {
+        ...input,
+        password,
+        isAdmin: true,
+      };
+      const user = await this.create({
+        ...payload,
+      });
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async login(input: ILoginRequest): Promise<ILoginResponse> {
+    try {
+      const user = await this.findOne({ username: input.username });
+      if (!user) throw new NotFoundException("Credential is invalid", {});
+      const isMatch = await bcrypt.compare(input.password, user.password);
+      if (!isMatch) throw new BadRequestException("Credential is invalid", {});
+
+      const payload: IUser = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        isAdmin: user.isAdmin,
+      };
+
+      const accessToken = await this.jwtSrvice.generateToken(payload);
+      const refreshToken = await this.jwtSrvice.generateRefreshToken(payload);
+
+      return {
+        accessToken,
+        refreshToken,
+        user: payload,
+      };
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -76,7 +142,7 @@ export default class UserService {
       const conditions = removeLimitAndPage(input.data);
       const users = await Users.findAndCountAll({
         where: {
-          name: {
+          username: {
             [Op.like]: `%${conditions.name}%`,
           },
         },
