@@ -9,7 +9,11 @@ import JwtService from "../service/jwt.service";
 // import Users from "../database/models/user";
 
 export default class AuthMiddleware {
-  public async checkAuth(req: Request, res: Response, next: NextFunction) {
+  public async checkAuth(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const bypasAuth = ["/api/auth"];
       for (let whitelist of bypasAuth) {
