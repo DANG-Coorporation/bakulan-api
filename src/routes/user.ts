@@ -18,7 +18,6 @@ export default class UserRouter {
     // Initialize router object
     this.router = Router({ mergeParams: true });
     this.userRoutes();
-    console.info("/api/user routes initialized");
   }
 
   private userRoutes() {
