@@ -1,4 +1,4 @@
-name: Deploy Eventopia API
+name: Deploy Eventopia WEB
 
 on:
   workflow_dispatch:
@@ -6,9 +6,18 @@ on:
     branches:
       - 'release/*'
       - 'development'
-      - 'master'
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
 
+    steps:
+    - name: Checkout code - ${{ github.ref_name }}
+      uses: actions/checkout@v2
 
+    - name: Install dependencies
+      run: |
+        npm ci
 jobs:
   deploy:
     name: deploy branch - ${{ github.ref_name }}
@@ -35,4 +44,4 @@ jobs:
     - name: Deploy to VPS - ${{ github.ref_name }}
       run: |
         # Connect to the server and run Docker commands
-        sshpass -p "$(cat ~/.ssh/workflow_eventopia_api_password)" ssh -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USER@$SSH_HOST "cd ~/eventopia/docker && ./build.sh && docker-compose up -d"
+        sshpass -p "$(cat ~/.ssh/workflow_eventopia_api_password)" ssh -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USER@$SSH_HOST "cd ~/bakulan/docker/ && ./github-workflow-be.sh ${{ github.ref_name }} && docker-compose up -d"
