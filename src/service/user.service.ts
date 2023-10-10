@@ -4,14 +4,156 @@ import { NotFoundException } from "../helper/Error/NotFound/NotFoundException";
 import { removeLimitAndPage } from "../helper/function/filteredData";
 import { IPaginate } from "../helper/interface/paginate/paginate.interface";
 import Users, { UserCreationAttributes } from "../database/models/user";
+import {
+  IAdmin,
+  ICreateCashier,
+} from "../helper/interface/user/create.admin.interface";
+import bcrypt from "bcrypt";
+import {
+  ILoginRequest,
+  ILoginResponse,
+  IUser,
+} from "../helper/interface/auth/login";
+import JwtService from "./jwt.service";
+import Merchants from "../database/models/merchant";
 
 export default class UserService {
+  jwtSrvice: JwtService;
+
+  constructor() {
+    this.jwtSrvice = new JwtService();
+  }
+
   async create(input: UserCreationAttributes) {
     try {
       const user = await Users.create(input);
       return user;
     } catch (error: any) {
       throw new Error(`Error creating user: ${error.message}`);
+    }
+  }
+
+  async createAdmin(input: IAdmin): Promise<Users> {
+    try {
+      const isExistUsername = await this.gets({ username: input.username });
+      if (isExistUsername.length > 0)
+        throw new BadRequestException("Username is exist", {});
+
+      const isExistEmail = await this.gets({ email: input.email });
+      if (isExistEmail.length > 0)
+        throw new BadRequestException("Email is exist", {});
+
+      const password = await bcrypt.hash(input.password, 10);
+      const payload = {
+        ...input,
+        password,
+        isAdmin: true,
+      };
+      const user = await this.create({
+        ...payload,
+      });
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async createCashier(input: ICreateCashier, ownerId: number): Promise<Users> {
+    try {
+      const owner = await this.getById(ownerId);
+      if (!owner.merchantId)
+        throw new BadRequestException("Please add merchant first", {});
+      const isExistUsername = await this.gets({ username: input.username });
+      if (isExistUsername.length > 0)
+        throw new BadRequestException("Username is exist", {});
+
+      const isExistEmail = await this.gets({ email: input.email });
+      if (isExistEmail.length > 0)
+        throw new BadRequestException("Email is exist", {});
+
+      const password = await bcrypt.hash(input.password, 10);
+      const payload = {
+        ...input,
+        password,
+        isAdmin: false,
+      };
+      const user = await this.create({
+        ...payload,
+      });
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async addMerchant(name: string, ownerId: number) {
+    try {
+      await this.getById(ownerId);
+      const merchant = await Merchants.create({
+        name,
+      });
+
+      await this.updateById(ownerId, {
+        merchantId: merchant.id,
+      });
+      return merchant;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async login(input: ILoginRequest): Promise<ILoginResponse> {
+    try {
+      const user = await this.findOne({ username: input.username });
+      if (!user) throw new NotFoundException("Credential is invalid", {});
+      const isMatch = await bcrypt.compare(input.password, user.password);
+      if (!isMatch) throw new BadRequestException("Credential is invalid", {});
+
+      const payload: IUser = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        isAdmin: user.isAdmin,
+      };
+
+      const accessToken = await this.jwtSrvice.generateToken(payload);
+      const refreshToken = await this.jwtSrvice.generateRefreshToken(payload);
+
+      return {
+        accessToken,
+        refreshToken,
+        user: payload,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getRefreshToken(input: string): Promise<ILoginResponse> {
+    try {
+      const payload = await this.jwtSrvice.verifyRefreshToken(input);
+      const user = await this.findOne({ id: payload.id });
+      if (!user) throw new NotFoundException("Credential is invalid", {});
+
+      const newPayload: IUser = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        isAdmin: user.isAdmin,
+      };
+
+      const accessToken = await this.jwtSrvice.generateToken(newPayload);
+      const refreshToken = await this.jwtSrvice.generateRefreshToken(
+        newPayload
+      );
+
+      return {
+        accessToken,
+        refreshToken,
+        user: newPayload,
+      };
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -76,7 +218,7 @@ export default class UserService {
       const conditions = removeLimitAndPage(input.data);
       const users = await Users.findAndCountAll({
         where: {
-          name: {
+          username: {
             [Op.like]: `%${conditions.name}%`,
           },
         },

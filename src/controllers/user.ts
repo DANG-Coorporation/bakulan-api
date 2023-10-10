@@ -1,11 +1,15 @@
-import { Request, Response } from "express";
-import UserService from "../service/user.service";
+/// <reference path="./custom.d.ts" />
 import { HttpStatusCode } from "axios";
+import { Request, Response } from "express";
+import message from "../config/message";
 import { ProcessError } from "../helper/Error/errorHandler";
-import { BadRequestException } from "../helper/Error/BadRequestException/BadRequestException";
-import { validate } from "../helper/function/validator";
-import { postUserValidator } from "../helper/validator/postUser.validator";
-import Users from "../database/models/user";
+import {
+  IAdmin,
+  ICreateCashier,
+} from "../helper/interface/user/create.admin.interface";
+import UserService from "../service/user.service";
+import { ILoginRequest, IUser } from "../helper/interface/auth/login";
+import { ForbiddenException } from "../helper/Error/Forbidden/ForbiddenException";
 
 export class UserController {
   userServices: UserService;
@@ -14,65 +18,77 @@ export class UserController {
     this.userServices = new UserService();
   }
 
-  async paginate(req: Request, res: Response): Promise<void> {
+  async createOwner(req: Request, res: Response) {
     try {
-      const { page, limit } = req.query;
-      const users = await this.userServices.page({
-        page: Number(page),
-        limit: Number(limit),
-        data: { ...req.query },
-      });
-      res.status(HttpStatusCode.Ok).json(users);
-    } catch (err) {
-      ProcessError(err, res);
-    }
-  }
-
-  async read(req: Request, res: Response) {
-    try {
-      const id = Number(req.params.id);
-      if (!id) throw new BadRequestException("Invalid id", {});
-      const user = await this.userServices.getById(id);
-      const userObject = user.toJSON();
-      res.json(userObject);
-    } catch (err) {
-      ProcessError(err, res);
-    }
-  }
-
-  async create(req: Request, res: Response) {
-    try {
-      await validate(postUserValidator, req.body);
-      const user = await this.userServices.create(req.body);
-      res.json(user.toJSON());
-    } catch (err) {
-      ProcessError(err, res);
-    }
-  }
-
-  async update(req: Request, res: Response) {
-    try {
-      const [affectedRows] = await Users.update(req.body, {
-        where: { id: req.params.id },
-      });
-      res.json({
-        affectedRows: affectedRows || 0,
-      });
-    } catch (err) {
-      ProcessError(err, res);
-    }
-  }
-
-  async delete(req: Request, res: Response) {
-    try {
-      const id = Number(req.params.id);
-      if (!id) throw new BadRequestException("Invalid id", {});
-      const affectedRows = await this.userServices.deleteById(id);
+      const body = req.body as IAdmin;
+      const result = await this.userServices.createAdmin(body);
       res.status(HttpStatusCode.Ok).json({
-        affectedRows: affectedRows || 0,
+        statusCode: HttpStatusCode.Ok,
+        message: message.success,
+        data: result,
       });
-    } catch (err) {
-      ProcessError(err, res);
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
+
+  async createCashier(req: Request, res: Response) {
+    try {
+      const body = req.body as ICreateCashier;
+      const user = req.user;
+      if (!user.isAdmin) throw new ForbiddenException("You are not admin", {});
+      const result = await this.userServices.createCashier(body, user.id);
+      res.status(HttpStatusCode.Ok).json({
+        statusCode: HttpStatusCode.Ok,
+        message: message.success,
+        data: result,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
+
+  async addMerchant(req: Request, res: Response) {
+    try {
+      const body = req.body;
+      const user = req.user;
+      if (!user.isAdmin) throw new ForbiddenException("You are not admin", {});
+      const result = await this.userServices.addMerchant(body.name, user.id);
+      res.status(HttpStatusCode.Ok).json({
+        statusCode: HttpStatusCode.Ok,
+        message: message.success,
+        data: result,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
+
+  async login(req: Request, res: Response) {
+    try {
+      const body = req.body as ILoginRequest;
+      const result = await this.userServices.login(body);
+      res.status(HttpStatusCode.Ok).json({
+        statusCode: HttpStatusCode.Ok,
+        message: message.success,
+        data: result,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
+
+  async refreshToken(req: Request, res: Response) {
+    try {
+      const { refreshToken } = req.body;
+      const result = await this.userServices.getRefreshToken(refreshToken);
+      res.status(HttpStatusCode.Ok).json({
+        statusCode: HttpStatusCode.Ok,
+        message: message.success,
+        data: result,
+      });
+    } catch (error) {
+      ProcessError(error, res);
     }
   }
 }
