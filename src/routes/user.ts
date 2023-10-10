@@ -3,7 +3,9 @@ import { UserController } from "../controllers/user";
 import {
   addMerchantValidator,
   createCashierValidator,
+  updateCashierValidator,
 } from "../helper/validator/users.validator";
+import { param } from "express-validator";
 
 export default class UserRouter {
   router: Router;
@@ -16,7 +18,6 @@ export default class UserRouter {
     // Initialize router object
     this.router = Router({ mergeParams: true });
     this.userRoutes();
-    console.info("/api/user routes initialized");
   }
 
   private userRoutes() {
@@ -32,6 +33,14 @@ export default class UserRouter {
 
     this.router.post("/add-merchant", addMerchantValidator(), (req, res) =>
       this.userController.addMerchant(req, res)
+    );
+
+    this.router.delete("/cashier/:id", (req, res) =>
+      this.userController.deleteCashier(req, res)
+    );
+
+    this.router.patch("/cashier/:id", updateCashierValidator(), (req, res) =>
+      this.userController.updateCashier(req, res)
     );
   }
 }

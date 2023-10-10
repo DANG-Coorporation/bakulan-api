@@ -76,11 +76,75 @@ export default class UserService {
         ...input,
         password,
         isAdmin: false,
+        merchantId: owner.merchantId,
       };
       const user = await this.create({
         ...payload,
       });
       return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deleteCashier(id: number, ownerId: number) {
+    try {
+      const owner = await this.getById(ownerId);
+      if (!owner.merchantId)
+        throw new BadRequestException("Please add merchant first", {});
+      const user = await this.getById(id);
+      if (!user) throw new NotFoundException("Cashier not found", {});
+      if (user.merchantId !== owner.merchantId)
+        throw new BadRequestException("You are not owner of this cashier", {});
+      if (user.isAdmin)
+        throw new BadRequestException("You can't delete admin", {});
+      const deletedUser = await this.deleteById(id);
+      return deletedUser;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateCashier(
+    id: number,
+    input: Partial<UserCreationAttributes>,
+    ownerId: number
+  ) {
+    try {
+      const owner = await this.getById(ownerId);
+      if (!owner.merchantId)
+        throw new BadRequestException("Please add merchant first", {});
+      const user = await this.getById(id);
+      if (!user) throw new NotFoundException("Cashier not found", {});
+      if (user.merchantId !== owner.merchantId)
+        throw new BadRequestException("You are not owner of this cashier", {});
+      if (user.isAdmin)
+        throw new BadRequestException("You can't update admin", {});
+      if (input.password) {
+        const password = await bcrypt.hash(input.password, 10);
+        input.password = password;
+      }
+      if (input.username) {
+        const checkUser = await this.gets({ username: input.username });
+        if (checkUser.length > 0) {
+          throw new BadRequestException("Username is exist", {});
+        }
+      }
+
+      if (input.email) {
+        const checkEmail = await this.gets({ email: input.email });
+        if (checkEmail.length > 0) {
+          throw new BadRequestException("Email is exist", {});
+        }
+      }
+      const payloadUpdate = {
+        username: input.username != null ? input.username : user.username,
+        email: input.email != null ? input.email : user.email,
+        password: input.password != null ? input.password : user.password,
+      };
+
+      const updatedUser = await this.updateById(id, payloadUpdate);
+      return updatedUser;
     } catch (error) {
       throw error;
     }

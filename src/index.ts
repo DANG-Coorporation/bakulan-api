@@ -1,8 +1,9 @@
-import http from "http";
-import expressServer from "./server";
 import dotenv from "dotenv";
-import { AddressInfo } from "net";
 import { Request, Response } from "express";
+import http from "http";
+import { AddressInfo } from "net";
+import { BgWhite, FgMagenta, Reset } from "./config/color-terminal";
+import expressServer from "./server";
 dotenv.config();
 
 // Normalize port number which will expose server
@@ -74,6 +75,6 @@ function onListening(): void {
   const bind =
     typeof addr === "string"
       ? `pipe ${addr}`
-      : `Listetning on port ${addr.port}`;
+      : `${FgMagenta}${BgWhite}Listetning on port ${addr.port} ${Reset}`;
   console.log(bind);
 }

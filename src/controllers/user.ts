@@ -48,6 +48,39 @@ export class UserController {
     }
   }
 
+  async deleteCashier(req: Request, res: Response) {
+    try {
+      const id = Number(req.params.id);
+      const user = req.user;
+      if (!user.isAdmin) throw new ForbiddenException("You are not admin", {});
+      const result = await this.userServices.deleteCashier(id, user.id);
+      res.status(HttpStatusCode.Ok).json({
+        statusCode: HttpStatusCode.Ok,
+        message: message.success,
+        data: result,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
+
+  async updateCashier(req: Request, res: Response) {
+    try {
+      const id = Number(req.params.id);
+      const body = req.body as IUser;
+      const user = req.user;
+      if (!user.isAdmin) throw new ForbiddenException("You are not admin", {});
+      const result = await this.userServices.updateCashier(id, body, user.id);
+      res.status(HttpStatusCode.Ok).json({
+        statusCode: HttpStatusCode.Ok,
+        message: message.success,
+        data: result,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
+
   async addMerchant(req: Request, res: Response) {
     try {
       const body = req.body;

@@ -8,6 +8,12 @@ import rateLimit from "express-rate-limit";
 import AuthRouter from "./routes/auth";
 import UserRouter from "./routes/user";
 import AuthMiddleware from "./middleware/auth.middleware";
+import expressListEndpoints from "express-list-endpoints";
+
+const Reset = "\x1b[0m";
+const FgRed = "\x1b[31m";
+const FgGreen = "\x1b[32m";
+const FgYellow = "\x1b[33m";
 
 export default class Server {
   expressInstance: express.Express;
@@ -16,6 +22,7 @@ export default class Server {
     this.expressInstance = express();
     this.middlewareSetup();
     this.routesSetup();
+    this.printRegisteredRoutes();
   }
 
   private middlewareSetup() {
@@ -49,5 +56,15 @@ export default class Server {
     this.expressInstance.use("/", router);
     this.expressInstance.use("/api/auth", authRouter);
     this.expressInstance.use("/api/user", userRouter);
+  }
+
+  private printRegisteredRoutes() {
+    const routes = expressListEndpoints(this.expressInstance);
+    console.log(`\n`);
+    routes.forEach((route) => {
+      console.log(
+        `${FgYellow}Registered route: ${FgGreen}${route.path}` + Reset
+      );
+    });
   }
 }

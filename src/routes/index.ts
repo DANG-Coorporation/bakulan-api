@@ -9,7 +9,6 @@ export default class MainRouter {
     // Initialize router object
     this.router = Router({ mergeParams: true });
     this.userRoutes();
-    console.info("/ routes initialized");
   }
 
   private userRoutes() {
