@@ -28,4 +28,69 @@ export default class ProductController {
       ProcessError(err, res);
     }
   }
+
+  // async filterProductsByCategory(req: Request, res: Response) {
+  //   try {
+  //     const { category } = req.params;
+
+  //     const filteredProducts = await productService.filterProductsByCategory(
+  //       category
+  //     );
+  //     res.json({
+  //       statusCode: 200,
+  //       message: "success",
+  //       data: filteredProducts,
+  //     });
+  //   } catch (err) {
+  //     console.log(err);
+  //     ProcessError(err, res);
+  //   }
+  // }
+
+  async filterProductsByName(req: Request, res: Response) {
+    try {
+      const { name } = req.params;
+
+      const filteredProducts = await productService.filterProductsByName(name);
+
+      res.json({
+        statusCode: 200,
+        message: "success",
+        data: filteredProducts,
+      });
+    } catch (err) {
+      console.log(err);
+      ProcessError(err, res);
+    }
+  }
+
+  async sortProductsByName(req: Request, res: Response) {
+    try {
+      const { order } = req.params;
+      const sortedProducts = await productService.sortProductsByName(order);
+      res.json({
+        statusCode: 200,
+        message: "success",
+        data: sortedProducts,
+      });
+    } catch (err) {
+      console.log(err);
+      ProcessError(err, res);
+    }
+  }
+
+  async sortProductByPrice(req: Request, res: Response) {
+    try {
+      const { order } = req.params;
+      const sortedProducts = await productService.sortProductByPrice(order);
+      res.json({
+        statusCode: 200,
+        message: "success",
+        data: sortedProducts,
+      });
+    } catch (err) {
+      console.log(err);
+      ProcessError(err, res);
+    }
+  }
 }
