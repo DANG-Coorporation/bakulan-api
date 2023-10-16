@@ -1,4 +1,4 @@
-name: Deploy Eventopia WEB
+name: Deploy Bakulan API
 
 on:
   workflow_dispatch:
