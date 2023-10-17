@@ -1,4 +1,5 @@
 import { Op } from "sequelize";
+import Category from "../database/models/categories";
 import Product, { ProductAttributes } from "../database/models/products";
 import { NotFoundException } from "../helper/Error/NotFound/NotFoundException";
 import { IPaginate } from "../helper/interface/paginate/paginate.interface";
@@ -25,16 +26,24 @@ export default class ProductService {
     }
   }
 
-  // async  filterProductsByCategory(category) {
-  //   // Implement the database query to filter products by category
-  //   const filteredProducts = await Product.findAll({
-  //     where: {
-  //       category: {
-  //         [Op.like]: `%${category}%`,
-  //       },
-  //     }
-  //   })
-  // }
+  async filterProductsByCategory(category: string) {
+    let filteredProducts: ProductAttributes[];
+    try {
+      filteredProducts = await Product.findAll({
+        include: {
+          model: Category,
+          where: {
+            category: {
+              [Op.like]: `%${category}%`,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      console.log("Error filtering products by category:", error);
+      throw error;
+    }
+  }
 
   async filterProductsByName(name: string) {
     try {
