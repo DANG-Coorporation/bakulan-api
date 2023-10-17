@@ -20,7 +20,11 @@ export default class MinioService {
     });
   }
 
-  async uploadFile(file: Express.Multer.File): Promise<string> {
+  async uploadFile(
+    file: Express.Multer.File,
+    filePathName: string,
+    bucketName: string
+  ): Promise<string> {
     try {
       if (!file) {
         throw new Error("No file provided");
@@ -28,23 +32,22 @@ export default class MinioService {
       const filePath = __dirname + "/../../" + file.path;
       const buffer = await this.getFileBufferAndLength(filePath);
 
-      const bucketName = "eventopia"; // Replace with your bucket name
-      const objectName = `images/${uuidv4()}-${file.originalname}`; // Use the original file name as the object name
+      // const objectName = `images/${uuidv4()}-${file.originalname}`; // Use the original file name as the object name
 
       const minioClient = await this.minioClient();
 
       await minioClient.putObject(
         bucketName,
-        objectName,
+        filePathName,
         buffer.buffer,
         buffer.length
       );
 
       console.info(
-        `File ${objectName} uploaded successfully to bucket ${bucketName}`
+        `File ${filePathName} uploaded successfully to bucket ${bucketName}`
       );
 
-      return `http://nawaytes.cloud:9000/${bucketName}/${objectName}`;
+      return `http://nawaytes.cloud:9000/${bucketName}/${filePathName}`;
     } catch (error) {
       console.error("Error uploading file:", error);
       throw error;

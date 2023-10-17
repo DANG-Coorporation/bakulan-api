@@ -16,5 +16,6 @@ const configConstants = {
   MINIO_USE_SSL: process.env.MINIO_USE_SSL ?? "false",
   MINIO_ACCESS_KEY: process.env.MINIO_ACCESS_KEY ?? "minio",
   MINIO_SECRET_KEY: process.env.MINIO_SECRET_KEY ?? "minio123",
+  BUCKET_NAME: "bakulan",
 };
 export default configConstants;
