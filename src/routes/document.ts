@@ -19,5 +19,9 @@ export default class DocumentRouter {
     this.router.post("/", multerMiddleware, (req: Request, res: Response) =>
       this.documentController.uploadDocument(req, res)
     );
+
+    this.router.get("/:id", (req: Request, res: Response) =>
+      this.documentController.getDocument(req, res)
+    );
   }
 }

@@ -31,4 +31,20 @@ export class DocumentService {
       throw error;
     }
   }
+
+  async getFileById(id: string) {
+    try {
+      const document = await Document.findByPk(id);
+      if (!document) {
+        throw new Error("Document not found");
+      }
+      const file = await this.minioService.getBuffer(
+        document.bucketname,
+        document.pathname
+      );
+      return file;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
