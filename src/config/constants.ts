@@ -22,5 +22,8 @@ const configConstants = {
   SMTP_SECURE: process.env.SMTP_SECURE ?? "false",
   SMTP_USER: process.env.SMTP_USER ?? "user",
   SMTP_PASS: process.env.SMTP_PASS ?? "pass",
+  RESET_PASSWORD_WEB_URL:
+    process.env.RESET_PASSWORD_WEB_URL ??
+    "http://localhost:3000/reset-password",
 };
 export default configConstants;
