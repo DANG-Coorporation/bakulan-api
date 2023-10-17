@@ -17,5 +17,10 @@ const configConstants = {
   MINIO_ACCESS_KEY: process.env.MINIO_ACCESS_KEY ?? "minio",
   MINIO_SECRET_KEY: process.env.MINIO_SECRET_KEY ?? "minio123",
   BUCKET_NAME: "bakulan",
+  SMTP_HOST: process.env.SMTP_HOST ?? "smtp.gmail.com",
+  SMTP_PORT: parseInt(process.env.SMTP_PORT ?? "587", 10),
+  SMTP_SECURE: process.env.SMTP_SECURE ?? "false",
+  SMTP_USER: process.env.SMTP_USER ?? "user",
+  SMTP_PASS: process.env.SMTP_PASS ?? "pass",
 };
 export default configConstants;

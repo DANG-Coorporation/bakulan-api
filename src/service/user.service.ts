@@ -21,14 +21,17 @@ import * as uuid from "uuid";
 import { extname } from "path";
 import MinioService from "./minio.service";
 import Document from "../database/models/document";
+import { NodemailerService } from "./nodemailer.service";
 
 export default class UserService {
   jwtSrvice: JwtService;
   minioService: MinioService;
+  emailService: NodemailerService;
 
   constructor() {
     this.jwtSrvice = new JwtService();
     this.minioService = new MinioService();
+    this.emailService = new NodemailerService();
   }
 
   async create(input: UserCreationAttributes) {
