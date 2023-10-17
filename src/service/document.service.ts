@@ -3,6 +3,7 @@ import Document from "../database/models/document";
 import MinioService from "./minio.service";
 import * as uuid from "uuid";
 import configConstants from "../config/constants";
+import { documentType } from "../config/documentType";
 export class DocumentService {
   minioService: MinioService;
 
@@ -24,7 +25,7 @@ export class DocumentService {
         bucketname: configConstants.BUCKET_NAME,
         filename: file.originalname,
         pathname: pathName,
-        type: "image",
+        type: documentType.product,
       });
       return document;
     } catch (error) {
