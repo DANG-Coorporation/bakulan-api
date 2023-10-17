@@ -18,8 +18,10 @@ const upload = multer({
     },
   }),
   fileFilter: function (req, file, cb) {
-    if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG|pdf|PDF)$/)) {
-      return cb(new Error("Only image and pdf files are allowed!"));
+    if (
+      !file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG|pdf|gif|GIF)$/)
+    ) {
+      return cb(new Error("Only image files are allowed!"));
     }
     cb(null, true);
   },
