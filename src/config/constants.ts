@@ -16,5 +16,14 @@ const configConstants = {
   MINIO_USE_SSL: process.env.MINIO_USE_SSL ?? "false",
   MINIO_ACCESS_KEY: process.env.MINIO_ACCESS_KEY ?? "minio",
   MINIO_SECRET_KEY: process.env.MINIO_SECRET_KEY ?? "minio123",
+  BUCKET_NAME: "bakulan",
+  SMTP_HOST: process.env.SMTP_HOST ?? "smtp.gmail.com",
+  SMTP_PORT: parseInt(process.env.SMTP_PORT ?? "587", 10),
+  SMTP_SECURE: process.env.SMTP_SECURE ?? "false",
+  SMTP_USER: process.env.SMTP_USER ?? "user",
+  SMTP_PASS: process.env.SMTP_PASS ?? "pass",
+  RESET_PASSWORD_WEB_URL:
+    process.env.RESET_PASSWORD_WEB_URL ??
+    "http://localhost:3000/reset-password",
 };
 export default configConstants;

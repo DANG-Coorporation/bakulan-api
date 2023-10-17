@@ -6,6 +6,7 @@ import {
   updateCashierValidator,
 } from "../helper/validator/users.validator";
 import { param } from "express-validator";
+import { multerMiddleware } from "../middleware/multer.middleware";
 
 export default class UserRouter {
   router: Router;
@@ -41,6 +42,10 @@ export default class UserRouter {
 
     this.router.patch("/cashier/:id", updateCashierValidator(), (req, res) =>
       this.userController.updateCashier(req, res)
+    );
+
+    this.router.patch("/photo-profile", multerMiddleware, (req, res) =>
+      this.userController.updateProfile(req, res)
     );
   }
 }

@@ -9,6 +9,8 @@ import AuthRouter from "./routes/auth";
 import UserRouter from "./routes/user";
 import AuthMiddleware from "./middleware/auth.middleware";
 import expressListEndpoints from "express-list-endpoints";
+import DocumentRouter from "./routes/document";
+import ResetPasswordRouter from "./routes/reset_password.route";
 
 const Reset = "\x1b[0m";
 const FgRed = "\x1b[31m";
@@ -52,11 +54,15 @@ export default class Server {
     const router = new MainRouter().router;
     const authRouter = new AuthRouter().router;
     const userRouter = new UserRouter().router;
+    const documentRouter = new DocumentRouter().router;
+    const resetPasswordRouter = new ResetPasswordRouter().router;
 
     // Add to server routes
     this.expressInstance.use("/", router);
     this.expressInstance.use("/api/auth", authRouter);
     this.expressInstance.use("/api/user", userRouter);
+    this.expressInstance.use("/api/document", documentRouter);
+    this.expressInstance.use("/api/reset-password", resetPasswordRouter);
   }
 
   private printRegisteredRoutes() {

@@ -12,7 +12,7 @@ export interface UserAttributes {
   password: string;
   isAdmin: boolean;
   merchantId?: number;
-  pictureId?: string;
+  pictureId?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -31,7 +31,7 @@ class Users
   public password!: string;
   public isAdmin!: boolean;
   public merchantId!: number;
-  public pictureId!: string;
+  public pictureId!: number;
 
   // timestamps!
   public readonly createdAt!: Date;
@@ -50,7 +50,7 @@ Users.init(
     email: DataTypes.STRING(255),
     isAdmin: DataTypes.BOOLEAN,
     merchantId: DataTypes.INTEGER,
-    pictureId: DataTypes.STRING(255),
+    pictureId: DataTypes.INTEGER,
     createdAt: {
       type: DataTypes.DATE,
     },
