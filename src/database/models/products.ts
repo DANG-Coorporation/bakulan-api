@@ -1,5 +1,6 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import Database from "../../config/db";
+import Category from "./categories";
 
 const databaseInstance = Database.database;
 
@@ -60,5 +61,7 @@ Product.init(
     underscored: true,
   }
 );
+
+Product.belongsTo(Category, { foreignKey: "category_id" });
 
 export default Product;

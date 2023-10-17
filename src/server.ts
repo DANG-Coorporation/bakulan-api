@@ -8,6 +8,7 @@ import rateLimit from "express-rate-limit";
 import AuthRouter from "./routes/auth";
 import UserRouter from "./routes/user";
 import ProductRouter from "./routes/product";
+import CategoryRouter from "./routes/categories";
 import AuthMiddleware from "./middleware/auth.middleware";
 import expressListEndpoints from "express-list-endpoints";
 
@@ -54,12 +55,14 @@ export default class Server {
     const authRouter = new AuthRouter().router;
     const userRouter = new UserRouter().router;
     const productRouter = new ProductRouter().router;
+    const categoryRouter = new CategoryRouter().router;
 
     // Add to server routes
     this.expressInstance.use("/", router);
     this.expressInstance.use("/api/auth", authRouter);
     this.expressInstance.use("/api/user", userRouter);
     this.expressInstance.use("/api/product", productRouter);
+    this.expressInstance.use("/api/categories", categoryRouter);
   }
 
   private printRegisteredRoutes() {

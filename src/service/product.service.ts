@@ -8,13 +8,19 @@ export default class ProductService {
   async getProducts(input: IPaginate<ProductAttributes>) {
     try {
       const page = input.page ?? 1;
-      const limit = input.limit ?? 5;
+      const limit = input.limit ?? 10;
       const offset = (page - 1) * limit;
 
       const products = await Product.findAndCountAll({
         offset,
         limit,
         order: [["createdAt", "DESC"]],
+        include: [
+          {
+            model: Category,
+            attributes: ["name"],
+          },
+        ],
       });
 
       const totalPages = Math.ceil(products.count / limit);
@@ -27,20 +33,21 @@ export default class ProductService {
   }
 
   async filterProductsByCategory(category: string) {
-    let filteredProducts: ProductAttributes[];
     try {
-      filteredProducts = await Product.findAll({
-        include: {
-          model: Category,
-          where: {
-            category: {
-              [Op.like]: `%${category}%`,
+      const filteredProducts = await Product.findAll({
+        include: [
+          {
+            model: Category,
+            where: {
+              name: category,
             },
+            attributes: [],
           },
-        },
+        ],
       });
+      return filteredProducts;
     } catch (error) {
-      console.log("Error filtering products by category:", error);
+      console.error("Error filtering products by category:", error);
       throw error;
     }
   }

@@ -29,23 +29,19 @@ export default class ProductController {
     }
   }
 
-  // async filterProductsByCategory(req: Request, res: Response) {
-  //   try {
-  //     const { category } = req.params;
-
-  //     const filteredProducts = await productService.filterProductsByCategory(
-  //       category
-  //     );
-  //     res.json({
-  //       statusCode: 200,
-  //       message: "success",
-  //       data: filteredProducts,
-  //     });
-  //   } catch (err) {
-  //     console.log(err);
-  //     ProcessError(err, res);
-  //   }
-  // }
+  async filterProductsByCategory(req: Request, res: Response) {
+    const { category } = req.params;
+    try {
+      const products = await productService.filterProductsByCategory(category);
+      res.json({
+        statusCode: 200,
+        message: "success",
+        data: products,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
 
   async filterProductsByName(req: Request, res: Response) {
     try {

@@ -15,8 +15,12 @@ export default class ProductRouter {
   private initializeRoutes() {
     this.router.get("/", this.productController.getProducts);
     this.router.get(
-      "/filter/:name",
+      "/filterName/:name",
       this.productController.filterProductsByName
+    );
+    this.router.get(
+      "/filterCategory/:category",
+      this.productController.filterProductsByCategory
     );
     this.router.get(
       "/sortByName/:order",
