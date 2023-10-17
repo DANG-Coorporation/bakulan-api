@@ -16,12 +16,22 @@ import {
 } from "../helper/interface/auth/login";
 import JwtService from "./jwt.service";
 import Merchants from "../database/models/merchant";
+import configConstants from "../config/constants";
+import * as uuid from "uuid";
+import { extname } from "path";
+import MinioService from "./minio.service";
+import Document from "../database/models/document";
+import { NodemailerService } from "./nodemailer.service";
 
 export default class UserService {
   jwtSrvice: JwtService;
+  minioService: MinioService;
+  emailService: NodemailerService;
 
   constructor() {
     this.jwtSrvice = new JwtService();
+    this.minioService = new MinioService();
+    this.emailService = new NodemailerService();
   }
 
   async create(input: UserCreationAttributes) {
@@ -293,6 +303,32 @@ export default class UserService {
       return users;
     } catch (error: any) {
       throw new BadRequestException(`Error paginating users: ${error.message}`);
+    }
+  }
+
+  async updatePicture(userId: number, file: Express.Multer.File) {
+    try {
+      const user = await Users.findByPk(userId);
+      if (!user) throw new NotFoundException("User not found", {});
+      const extentions = extname(file.originalname);
+      const bucketName = configConstants.BUCKET_NAME;
+      const pathName = `profile-picture/${user.id}/${uuid.v4()}${extentions}`;
+
+      await this.minioService.uploadFile(file, pathName, bucketName);
+
+      const document = await Document.create({
+        filename: file.originalname,
+        bucketname: bucketName,
+        pathname: pathName,
+        type: "profile-picture",
+      });
+
+      await user.update({
+        pictureId: Number(document.id),
+      });
+      return user.toJSON();
+    } catch (error) {
+      throw error;
     }
   }
 }

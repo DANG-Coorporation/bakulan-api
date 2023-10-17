@@ -124,4 +124,18 @@ export class UserController {
       ProcessError(error, res);
     }
   }
+
+  async updateProfile(req: Request, res: Response) {
+    try {
+      const userId = req.user.id;
+      const user = await this.userServices.updatePicture(userId, req.file!);
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: message.success,
+        data: user,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
 }

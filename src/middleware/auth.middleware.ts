@@ -7,7 +7,10 @@ import { IUser } from "../helper/interface/auth/login";
 import JwtService from "../service/jwt.service";
 // import JwtService from "../service/jwt.service";
 // import Users from "../database/models/user";
-
+interface ISpecifiedRoute {
+  route: RegExp;
+  method: string;
+}
 export default class AuthMiddleware {
   public async checkAuth(
     req: Request,
@@ -20,6 +23,23 @@ export default class AuthMiddleware {
         if (req.path.startsWith(whitelist)) {
           return next();
         }
+      }
+      const specifiedRoutes: ISpecifiedRoute[] = [
+        {
+          method: "GET",
+          route: /^\/api\/document\/\d+$/,
+        },
+      ];
+
+      const isSpecifiedRoute = specifiedRoutes.some(
+        (route) =>
+          route.method.toUpperCase() === req.method.toUpperCase() &&
+          route.method === req.method &&
+          route.route.test(req.path)
+      );
+
+      if (isSpecifiedRoute) {
+        return next();
       }
 
       if (!req.headers.authorization)
