@@ -18,7 +18,7 @@ export default class AuthMiddleware {
     next: NextFunction
   ): Promise<void> {
     try {
-      const bypasAuth = ["/api/auth"];
+      const bypasAuth = ["/api/auth", "/api/reset-password"];
       for (let whitelist of bypasAuth) {
         if (req.path.startsWith(whitelist)) {
           return next();
