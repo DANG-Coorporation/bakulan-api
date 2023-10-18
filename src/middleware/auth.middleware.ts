@@ -29,10 +29,6 @@ export default class AuthMiddleware {
           method: "GET",
           route: /^\/api\/document\/\d+$/,
         },
-        {
-          method: "GET",
-          route: /^\/api\/user\/profile$/,
-        },
       ];
 
       const isSpecifiedRoute = specifiedRoutes.some(
