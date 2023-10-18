@@ -47,5 +47,9 @@ export default class UserRouter {
     this.router.patch("/photo-profile", multerMiddleware, (req, res) =>
       this.userController.updateProfile(req, res)
     );
+
+    this.router.get("/profile", (req, res) =>
+      this.userController.getProfile(req, res)
+    );
   }
 }

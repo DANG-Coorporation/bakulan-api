@@ -138,4 +138,18 @@ export class UserController {
       ProcessError(error, res);
     }
   }
+
+  async getProfile(req: Request, res: Response) {
+    try {
+      const userId = req.user.id;
+      const user = await this.userServices.getById(userId);
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: message.success,
+        data: user,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
 }
