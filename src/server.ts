@@ -35,7 +35,12 @@ export default class Server {
     this.expressInstance.use(helmet());
 
     // Setup Cross Origin access (CORS can be configured as needed)
-    this.expressInstance.use(cors());
+    this.expressInstance.use(
+      cors({
+        origin: "*",
+        optionsSuccessStatus: 200,
+      })
+    );
     this.expressInstance.use(
       "/api",
       rateLimit({
