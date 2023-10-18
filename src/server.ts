@@ -32,15 +32,14 @@ export default class Server {
   private middlewareSetup() {
     const authMiddleware = new AuthMiddleware().checkAuth;
     // Setup common security protection (Helmet should come first)
-    this.expressInstance.use(helmet());
-
-    // Setup Cross Origin access (CORS can be configured as needed)
     this.expressInstance.use(
-      cors({
-        origin: "*",
-        optionsSuccessStatus: 200,
+      helmet({
+        crossOriginResourcePolicy: false,
       })
     );
+
+    // Setup Cross Origin access (CORS can be configured as needed)
+    this.expressInstance.use(cors());
     this.expressInstance.use(
       "/api",
       rateLimit({
