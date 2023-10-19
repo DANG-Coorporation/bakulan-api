@@ -257,7 +257,15 @@ export default class UserService {
 
   async findOne(conditions: Partial<UserCreationAttributes>) {
     try {
-      const user = await Users.findOne({ where: conditions });
+      const user = await Users.findOne({
+        where: conditions,
+        include: [
+          {
+            model: Merchants,
+            as: "merchant",
+          },
+        ],
+      });
       if (!user) throw new NotFoundException("Users not found", {});
       return user;
     } catch (error: any) {
@@ -267,7 +275,14 @@ export default class UserService {
 
   async getById(id: number) {
     try {
-      const user = await Users.findByPk(id);
+      const user = await Users.findByPk(id, {
+        include: [
+          {
+            model: Merchants,
+            as: "merchant",
+          },
+        ],
+      });
       if (!user) throw new NotFoundException("Users not found", {});
       return user;
     } catch (error: any) {
