@@ -37,7 +37,22 @@ export default class UserService {
   async create(input: UserCreationAttributes) {
     try {
       const user = await Users.create(input);
-      return user;
+      const merchant = await Merchants.create({
+        name: `${user.username}'s Merchant`,
+      });
+      user.merchantId = merchant.id;
+      await user.save();
+
+      const result = await Users.findOne({
+        where: { id: user.id },
+        include: [
+          {
+            model: Merchants,
+            as: "merchant",
+          },
+        ],
+      });
+      return result;
     } catch (error: any) {
       throw new Error(`Error creating user: ${error.message}`);
     }
@@ -62,7 +77,7 @@ export default class UserService {
       const user = await this.create({
         ...payload,
       });
-      return user;
+      return user!;
     } catch (error) {
       throw error;
     }
@@ -91,7 +106,7 @@ export default class UserService {
       const user = await this.create({
         ...payload,
       });
-      return user;
+      return user!;
     } catch (error) {
       throw error;
     }

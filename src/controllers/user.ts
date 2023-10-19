@@ -152,4 +152,11 @@ export class UserController {
       ProcessError(error, res);
     }
   }
+
+  async updatePassword(req: Request, res: Response): Promise<Response | void> {
+    try {
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
 }

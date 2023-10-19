@@ -1,5 +1,8 @@
+"use strict";
 import { DataTypes, Model, Optional } from "sequelize";
 import Database from "../../config/db";
+import Document from "./document";
+import Merchants from "./merchant";
 
 // Database connection instance
 const databaseInstance = Database.database;
@@ -36,6 +39,18 @@ class Users
   // timestamps!
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
+
+  // Model associations are defined here
+  static associate(models: any) {
+    Users.belongsTo(models.Merchant, {
+      foreignKey: "merchantId",
+      as: "merchant",
+    });
+    Users.belongsTo(models.Picture, {
+      foreignKey: "pictureId",
+      as: "picture",
+    });
+  }
 }
 
 Users.init(
@@ -49,8 +64,22 @@ Users.init(
     password: DataTypes.STRING(255),
     email: DataTypes.STRING(255),
     isAdmin: DataTypes.BOOLEAN,
-    merchantId: DataTypes.INTEGER,
-    pictureId: DataTypes.INTEGER,
+    merchantId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "merchants",
+        key: "id",
+      },
+    },
+    pictureId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "documents",
+        key: "id",
+      },
+    },
     createdAt: {
       type: DataTypes.DATE,
     },
@@ -64,5 +93,15 @@ Users.init(
     underscored: true,
   }
 );
+
+Users.belongsTo(Merchants, {
+  foreignKey: "merchantId",
+  as: "merchant",
+});
+
+Merchants.hasOne(Users, {
+  foreignKey: "merchantId",
+  as: "merchant",
+});
 
 export default Users;
